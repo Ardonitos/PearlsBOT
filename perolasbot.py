@@ -4,15 +4,17 @@ from os import getenv
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions
+from openai import OpenAI
 from db_manager import Database
 
-BOT_KEY = getenv('BOT_KEY')
+BOT_KEY, OPENAI_KEY = getenv('BOT_KEY'), getenv('OPENAI_API_KEY')
 
 db = Database('pearls.db')
 
 intents = discord.Intents.default()
 intents.message_content = True
 
+client = OpenAI(api_key=OPENAI_KEY)
 bot = commands.Bot(command_prefix='a!', intents=intents)
 
 @bot.event
@@ -40,6 +42,18 @@ async def ajuda(ctx):
 
 
 @bot.command()
+async def c(ctx, *, args):
+    completion = client.chat.completions.create(
+        model='gpt-3.5-turbo',
+        messages=[
+        {"role": "system", "content": "Você é um ratinho engraçado chamado Raimundo, sendo sua maior habilidade ser fazer piadas e rir usando KKKKKK!"},
+        {"role": "user", "content": f"""{args}"""}
+        ]
+    )
+    await ctx.reply(completion.choices[0].message.content)
+
+
+@bot.command()
 async def addperola(ctx, *, args):
     try:
         server_id = ctx.guild.id
@@ -57,7 +71,7 @@ async def addperola(ctx, *, args):
 
     except Exception as error:
         print(error)
-        await ctx.reply('Mensagem Inválida. Talvez você esqueceu as aspas ("")?')
+        await ctx.reply('Ih rapaz, não foi a pérola. Talvez tu esqueceu as aspas ("")?')
 
 
 @bot.command()
@@ -74,7 +88,7 @@ async def altperola(ctx, number_arg, pearl_arg):
 @altperola.error
 async def altperola_err(ctx, error):
     if isinstance(error, MissingPermissions):
-        await ctx.reply(f"Desculpa {ctx.message.author}, você não tem permissão para usar este comando.")
+        await ctx.reply(f"F {ctx.message.author}, tu não tem permissão para usar este comando.")
 
 
 @bot.command()
@@ -87,7 +101,7 @@ async def perola(ctx, number_arg):
         await ctx.reply(f'Pérola #{number_arg} "{var[0][0]}"')
     except Exception as error:
         print(error)
-        await ctx.reply('Houve uma falha, talvez você usou um número fora da ordem?')
+        await ctx.reply('Das duas, uma: ou essa pérola não existe, ou tá fora da ordem.')
 
 
 @bot.command()
@@ -98,7 +112,7 @@ async def perolas(ctx):
         await ctx.reply(f'Pérola #{rows[exp][0]} "{rows[exp][1]}"')
     except Exception as error:
         print(error)
-        await ctx.reply('Sem pérolas neste servidor.')
+        await ctx.reply('Eu ainda não anotei nenhuma pérola por aqui.')
 
 
 @bot.command()
@@ -145,7 +159,7 @@ async def verperolas(ctx: commands.Context, page='1'):
 
     except IndexError as ie:
         print(ie)
-        await ctx.reply('Página não encontrada.')
+        await ctx.reply('Calma lá, eu ainda não anotei tanta pérola assim.')
     except Exception as e:
         print(e)
         return
