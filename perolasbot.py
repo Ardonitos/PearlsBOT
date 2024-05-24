@@ -42,15 +42,20 @@ async def ajuda(ctx):
 
 
 @bot.command()
-async def c(ctx, *, args):
-    completion = client.chat.completions.create(
-        model='gpt-3.5-turbo',
-        messages=[
-        {"role": "system", "content": "Você é um ratinho engraçado chamado Raimundo, sendo sua maior habilidade ser fazer piadas e rir usando KKKKKK!"},
-        {"role": "user", "content": f"""{args}"""}
-        ]
-    )
-    await ctx.reply(completion.choices[0].message.content)
+async def c(ctx: commands.Context, *, args):
+    try:
+        completion = client.chat.completions.create(
+            model='gpt-3.5-turbo',
+            messages=[
+            {"role": "system", "content": f"Você é um ratinho engraçado chamado Raimundo, habilidoso em contar piadas, sendo seu ouvinte o {ctx.author}"},
+            {"role": "user", "content": f"""{args}"""}
+            ],
+            temperature=0.7
+        )
+        await ctx.reply(completion.choices[0].message.content)
+    except Exception as error:
+        print(error)
+        await ctx.reply("Serviço Indisponível")
 
 
 @bot.command()
