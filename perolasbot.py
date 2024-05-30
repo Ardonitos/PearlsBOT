@@ -20,11 +20,12 @@ bot = commands.Bot(command_prefix='a!', intents=intents)
 @bot.event
 async def on_ready():
     print(f'Logado como {bot.user.name}.')
-    await bot.change_presence(activity=discord.Game('a!ajuda na sua cara.'))
+    await bot.tree.sync()
+    await bot.change_presence(activity=discord.Game('/ajuda na sua cara.'))
 
 
-@bot.command()
-async def ajuda(ctx):
+@bot.tree.command(name='ajuda', description='mostra o menu de ajuda, e seus comandos')
+async def slash_command(interactions:discord.Interaction):
     embed = discord.Embed(title='Ajuda', color=discord.Colour.pink(), description='Lista de Comandos e seus usos')
     embed.add_field(name='a!addperola "<conteúdo>"',
                      value="""Use para adicionar uma pérola, sempre deixe o conteúdo entre aspas duplas, se precisar de aspas dentro do conteúdo, utilize aspas simples. 
@@ -36,9 +37,10 @@ async def ajuda(ctx):
                     \nExemplo.: a!perola 8""", inline=False)
     embed.add_field(name='a!verperolas <página>', value='Use para ver todas as pérolas presentes no servidor.', inline=False)
     embed.add_field(name='a!perolas', value="Use para ver uma pérola aleatória.", inline=False)
+    embed.add_field(name='a!c', value='Use para conversar com o próprio bot.')
     embed.add_field(name='Duvidas ou Sugestões', value='Incomode o ardonitos, ele vai te atender melhor que eu.', inline=False)
 
-    await ctx.send(embed=embed)
+    await interactions.response.send_message(embed=embed)
 
 
 @bot.command()
